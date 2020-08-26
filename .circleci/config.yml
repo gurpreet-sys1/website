@@ -1,16 +1,20 @@
-version: 2.1
-orbs:
-  win: circleci/windows@2.2.0
-
+version: 2
 jobs:
   build:
-    executor: win/default     
-    working_directory: ~/repository
+    machine: true
     steps:
-       - checkout
-       - run:
-           command: |
-           
-             git clone https://x-access-token:1ba566f4f5b37b42efdb238c8ebb46573b89a25d@github.com/strategyfoundry/wimm-portal-server 
-             cd wimm-portal-server 
-             dotnet build
+      - run:
+          name: Clone docs
+          working_directory: ~/workdir
+          command: |
+            git clone --depth 1 https://$1ba566f4f5b37b42efdb238c8ebb46573b89a25d@https://github.com/strategyfoundry/wimm-portal-server.git
+      - deploy:
+          name: Trigger docs deployment
+          working_directory: ~/workdir/docs
+          command: |
+            git config credential.helper 'cache --timeout=120'
+            git config user.email "<email>"
+            git config user.name "Deployment Bot"
+            git commit --allow-empty -m "Trigger deployment"
+            # Push quietly to prevent showing the token in log
+            git push -q https://$1ba566f4f5b37b42efdb238c8ebb46573b89a25d@https://github.com/strategyfoundry/wimm-portal-server.git
